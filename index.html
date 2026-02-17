@@ -2,115 +2,227 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Tiến Lên Scorer</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: #667eea;
-            min-height: 100vh;
-            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            padding-top: max(10px, env(safe-area-inset-top));
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            padding-left: max(10px, env(safe-area-inset-left));
+            padding-right: max(10px, env(safe-area-inset-right));
         }
 
         .container {
-            max-width: 500px;
-            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .header {
             text-align: center;
             color: white;
-            margin-bottom: 20px;
+            padding: 12px 0;
+            flex-shrink: 0;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
         }
 
         .header h1 {
             font-size: 28px;
-            margin-bottom: 10px;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .round-display {
+            font-size: 16px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .btn-show-scores {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-show-scores:active {
+            background: rgba(255,255,255,0.5);
         }
 
         .setup {
             background: white;
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .setup h3 {
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 16px;
         }
 
         .setup input {
             width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 11px;
+            margin: 6px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .setup input:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
         .setup button {
             width: 100%;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 13px;
+            margin-top: 12px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 16px;
             cursor: pointer;
+            transition: background 0.3s;
         }
 
-        .setup button:hover {
+        .setup button:active {
             background: #764ba2;
         }
 
+        .game-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         .players {
+            flex: 1;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding-right: 4px;
         }
 
         .player-card {
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
             text-align: center;
+            border-top: 4px solid #667eea;
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.3s;
+        }
+
+        .player-card.locked {
+            opacity: 0.6;
+            pointer-events: none;
         }
 
         .player-name {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             word-break: break-word;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .score {
-            font-size: 36px;
+        .current-score {
+            text-align: center;
+        }
+
+        .current-score-label {
+            font-size: 10px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .current-score-value {
+            font-size: 48px;
             font-weight: bold;
             color: #667eea;
-            margin-bottom: 15px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 5px;
+            margin: 10px 0;
         }
 
         button {
-            padding: 10px 5px;
+            padding: 8px 4px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 12px;
+            transition: all 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.95);
         }
 
         .btn-plus {
@@ -118,34 +230,271 @@
             color: white;
         }
 
-        .btn-plus:hover {
-            background: #229954;
-        }
-
         .btn-minus {
             background: #e74c3c;
             color: white;
         }
 
-        .btn-minus:hover {
-            background: #c0392b;
+        .btn-edit {
+            background: #3498db;
+            color: white;
+            width: 100%;
+            padding: 7px;
+            font-size: 12px;
         }
 
-        .reset-btn {
-            width: 100%;
-            padding: 12px;
+        .controls {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-undo {
+            flex: 1;
+            min-width: 60px;
+            padding: 10px;
+            background: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-undo:active {
+            background: #e67e22;
+        }
+
+        .btn-undo:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .btn-end-round {
+            flex: 1;
+            min-width: 60px;
+            padding: 10px;
+            background: #16a085;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-end-round:active {
+            background: #138d75;
+        }
+
+        .btn-reset {
+            flex: 1;
+            min-width: 50px;
+            padding: 10px;
             background: #e74c3c;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        .btn-reset:active {
+            background: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 85%;
+            max-width: 320px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 12px;
+            color: #333;
             font-size: 16px;
         }
 
-        .reset-btn:hover {
-            background: #c0392b;
+        .end-round-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #16a085;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row strong {
+            color: #333;
+        }
+
+        .summary-current {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .summary-total {
+            font-weight: bold;
+            color: #16a085;
+            font-size: 16px;
+        }
+
+        .scores-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .scores-rank-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .scores-rank-item:last-child {
+            border-bottom: none;
+        }
+
+        .scores-rank-item.first {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb700 100%);
+        }
+
+        .scores-rank-item.second {
+            background: linear-gradient(135deg, #c0c0c0 0%, #a9a9a9 100%);
+        }
+
+        .scores-rank-item.third {
+            background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+        }
+
+        .scores-badge {
+            font-size: 22px;
+            width: 40px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .scores-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .scores-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .scores-rank-item.first .scores-name,
+        .scores-rank-item.second .scores-name,
+        .scores-rank-item.third .scores-name {
+            color: white;
+        }
+
+        .scores-current {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .scores-rank-item.first .scores-current,
+        .scores-rank-item.second .scores-current,
+        .scores-rank-item.third .scores-current {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .scores-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #16a085;
+            width: 50px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .scores-rank-item.first .scores-total,
+        .scores-rank-item.second .scores-total,
+        .scores-rank-item.third .scores-total {
+            color: white;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 11px;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-save {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-confirm {
+            background: #16a085;
+            color: white;
+        }
+
+        .btn-close {
+            background: #95a5a6;
+            color: white;
+            width: 100%;
         }
 
         .hidden {
@@ -157,25 +506,73 @@
     <div class="container">
         <div class="header">
             <h1>🎴 Tiến Lên Scorer</h1>
+            <div class="header-controls">
+                <div class="round-display">Round <span id="roundNumber">1</span></div>
+                <button class="btn-show-scores" onclick="showScoresModal()">👁️ Show</button>
+            </div>
         </div>
 
         <div class="setup" id="setupSection">
-            <h3 style="margin-bottom: 10px;">Nhập 4 tên người chơi:</h3>
+            <h3>📝 Nhập 4 tên người chơi:</h3>
             <input type="text" id="player1" placeholder="Người chơi 1">
             <input type="text" id="player2" placeholder="Người chơi 2">
             <input type="text" id="player3" placeholder="Người chơi 3">
             <input type="text" id="player4" placeholder="Người chơi 4">
-            <button onclick="startGame()">Bắt đầu</button>
+            <button onclick="startGame()" style="margin-top: auto;">Bắt đầu 🎮</button>
         </div>
 
-        <div id="gameSection" class="hidden">
+        <div id="gameSection" class="game-section hidden">
             <div class="players" id="playersContainer"></div>
-            <button class="reset-btn" onclick="resetGame()">🔄 Bắt đầu lại</button>
+
+            <div class="controls">
+                <button class="btn-undo" id="undoBtn" onclick="undoLastMove()">↶ Undo</button>
+                <button class="btn-end-round" onclick="showEndRoundModal()">✓ End</button>
+                <button class="btn-reset" onclick="resetGame()">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chỉnh sửa điểm -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 id="editTitle">Chỉnh sửa điểm</h3>
+            <input type="number" id="editScore" placeholder="Nhập điểm mới">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeEditModal()">Hủy</button>
+                <button class="btn-save" onclick="saveScore()">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xem điểm và thứ tự -->
+    <div id="scoresModal" class="modal">
+        <div class="modal-content">
+            <h3>🏆 Bảng điểm hiện tại</h3>
+            <div class="scores-list" id="scoresList"></div>
+            <button class="btn-close" onclick="closeScoresModal()" style="margin-top: 15px;">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận end round -->
+    <div id="endRoundModal" class="modal">
+        <div class="modal-content">
+            <h3>✓ Xác nhận kết thúc Round</h3>
+            <div class="end-round-summary" id="endRoundSummary"></div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeEndRoundModal()">Quay lại</button>
+                <button class="btn-confirm" onclick="confirmEndRound()">Xác nhận</button>
+            </div>
         </div>
     </div>
 
     <script>
         let players = [];
+        let currentRound = 1;
+        let currentRoundScores = [];
+        let roundLocked = false;
+        let lastScore = null;
+        let lastPlayerIndex = -1;
+        let editingPlayerIndex = -1;
 
         function startGame() {
             const names = [
@@ -186,27 +583,172 @@
             ];
 
             if (names.some(name => !name)) {
-                alert('Vui lòng nhập đủ 4 tên người chơi');
+                alert('Vui l��ng nhập đủ 4 tên người chơi');
                 return;
             }
 
-            players = names.map(name => ({ name, score: 0 }));
+            players = names.map(name => ({ name, totalScore: 0, history: [] }));
+            currentRound = 1;
+            currentRoundScores = players.map(() => 0);
+            roundLocked = false;
             
             document.getElementById('setupSection').classList.add('hidden');
             document.getElementById('gameSection').classList.remove('hidden');
-            renderPlayers();
+            renderGame();
         }
 
         function updateScore(index, points) {
-            players[index].score += points;
-            renderPlayers();
+            if (roundLocked) {
+                alert('Round đã kết thúc');
+                return;
+            }
+
+            lastScore = currentRoundScores[index];
+            lastPlayerIndex = index;
+            currentRoundScores[index] += points;
+            renderGame();
+        }
+
+        function undoLastMove() {
+            if (roundLocked) {
+                alert('Round đã kết thúc');
+                return;
+            }
+
+            if (lastPlayerIndex === -1) {
+                alert('Không có giao dịch nào');
+                return;
+            }
+
+            currentRoundScores[lastPlayerIndex] = lastScore;
+            lastPlayerIndex = -1;
+            lastScore = null;
+            renderGame();
+        }
+
+        function openEditModal(index) {
+            if (roundLocked) {
+                alert('Round đã kết thúc');
+                return;
+            }
+
+            editingPlayerIndex = index;
+            document.getElementById('editTitle').textContent = `Chỉnh sửa ${players[index].name}`;
+            document.getElementById('editScore').value = currentRoundScores[index];
+            document.getElementById('editModal').classList.add('show');
+            document.getElementById('editScore').focus();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+            editingPlayerIndex = -1;
+        }
+
+        function saveScore() {
+            const newScore = parseInt(document.getElementById('editScore').value);
+            if (isNaN(newScore)) {
+                alert('Vui lòng nhập số hợp lệ');
+                return;
+            }
+
+            lastScore = currentRoundScores[editingPlayerIndex];
+            lastPlayerIndex = editingPlayerIndex;
+            currentRoundScores[editingPlayerIndex] = newScore;
+            closeEditModal();
+            renderGame();
+        }
+
+        function getRanking() {
+            return [...players].map((p, idx) => ({...p, index: idx})).sort((a, b) => b.totalScore - a.totalScore);
+        }
+
+        function getRankBadge(rank) {
+            const badges = ['🥇', '🥈', '🥉', '4️⃣'];
+            return badges[rank - 1] || `${rank}️⃣`;
+        }
+
+        function showScoresModal() {
+            const ranking = getRanking();
+            const html = ranking.map((player, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? (rank === 1 ? 'first' : rank === 2 ? 'second' : 'third') : '';
+                const currentScore = currentRoundScores[player.index];
+                return `
+                    <div class="scores-rank-item ${rankClass}">
+                        <div class="scores-badge">${getRankBadge(rank)}</div>
+                        <div class="scores-info">
+                            <div class="scores-name">${player.name}</div>
+                            <div class="scores-current">Round: ${currentScore}</div>
+                        </div>
+                        <div class="scores-total">${player.totalScore}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('scoresList').innerHTML = html;
+            document.getElementById('scoresModal').classList.add('show');
+        }
+
+        function closeScoresModal() {
+            document.getElementById('scoresModal').classList.remove('show');
+        }
+
+        function showEndRoundModal() {
+            const summary = players.map((p, idx) => {
+                const newTotal = p.totalScore + currentRoundScores[idx];
+                return `
+                    <div class="summary-row">
+                        <strong>${p.name}:</strong>
+                        <span>
+                            <span class="summary-current">${currentRoundScores[idx]}</span>
+                            <span style="color: #ccc; margin: 0 4px;">→</span>
+                            <span class="summary-total">${newTotal}</span>
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('endRoundSummary').innerHTML = summary;
+            document.getElementById('endRoundModal').classList.add('show');
+        }
+
+        function closeEndRoundModal() {
+            document.getElementById('endRoundModal').classList.remove('show');
+        }
+
+        function confirmEndRound() {
+            players.forEach((player, idx) => {
+                player.totalScore += currentRoundScores[idx];
+                player.history.push(currentRoundScores[idx]);
+            });
+
+            closeEndRoundModal();
+            roundLocked = true;
+            lastPlayerIndex = -1;
+            lastScore = null;
+
+            setTimeout(() => {
+                if (confirm('Round kết thúc! Sang Round mới?')) {
+                    nextRound();
+                }
+            }, 300);
+        }
+
+        function nextRound() {
+            currentRound++;
+            currentRoundScores = players.map(() => 0);
+            roundLocked = false;
+            renderGame();
         }
 
         function renderPlayers() {
             const html = players.map((player, i) => `
-                <div class="player-card">
+                <div class="player-card ${roundLocked ? 'locked' : ''}">
                     <div class="player-name">${player.name}</div>
-                    <div class="score">${player.score}</div>
+                    <div class="current-score">
+                        <div class="current-score-label">Round</div>
+                        <div class="current-score-value">${currentRoundScores[i]}</div>
+                    </div>
                     <div class="buttons">
                         <button class="btn-plus" onclick="updateScore(${i}, 3)">+3</button>
                         <button class="btn-plus" onclick="updateScore(${i}, 2)">+2</button>
@@ -214,21 +756,48 @@
                         <button class="btn-minus" onclick="updateScore(${i}, -1)">-1</button>
                         <button class="btn-minus" onclick="updateScore(${i}, -2)">-2</button>
                     </div>
+                    <button class="btn-edit" onclick="openEditModal(${i})">✏️</button>
                 </div>
             `).join('');
 
             document.getElementById('playersContainer').innerHTML = html;
         }
 
-        function resetGame() {
-            document.getElementById('setupSection').classList.remove('hidden');
-            document.getElementById('gameSection').classList.add('hidden');
-            document.getElementById('player1').value = '';
-            document.getElementById('player2').value = '';
-            document.getElementById('player3').value = '';
-            document.getElementById('player4').value = '';
-            players = [];
+        function renderGame() {
+            renderPlayers();
+            document.getElementById('roundNumber').textContent = currentRound;
         }
+
+        function resetGame() {
+            if (confirm('Kết thúc game?')) {
+                document.getElementById('setupSection').classList.remove('hidden');
+                document.getElementById('gameSection').classList.add('hidden');
+                document.getElementById('player1').value = '';
+                document.getElementById('player2').value = '';
+                document.getElementById('player3').value = '';
+                document.getElementById('player4').value = '';
+                players = [];
+                currentRound = 1;
+                currentRoundScores = [];
+                roundLocked = false;
+            }
+        }
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        document.getElementById('scoresModal').addEventListener('click', function(e) {
+            if (e.target === this) closeScoresModal();
+        });
+
+        document.getElementById('endRoundModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEndRoundModal();
+        });
+
+        document.getElementById('editScore').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') saveScore();
+        });
     </script>
 </body>
 </html>
