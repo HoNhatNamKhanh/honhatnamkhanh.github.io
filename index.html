@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiến Lên Scorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #667eea;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .setup {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .setup input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .setup button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .setup button:hover {
+            background: #764ba2;
+        }
+
+        .players {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .player-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .player-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .score {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            padding: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-plus {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-plus:hover {
+            background: #229954;
+        }
+
+        .btn-minus {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-minus:hover {
+            background: #c0392b;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .reset-btn:hover {
+            background: #c0392b;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 Tiến Lên Scorer</h1>
+        </div>
+
+        <div class="setup" id="setupSection">
+            <h3 style="margin-bottom: 10px;">Nhập 4 tên người chơi:</h3>
+            <input type="text" id="player1" placeholder="Người chơi 1">
+            <input type="text" id="player2" placeholder="Người chơi 2">
+            <input type="text" id="player3" placeholder="Người chơi 3">
+            <input type="text" id="player4" placeholder="Người chơi 4">
+            <button onclick="startGame()">Bắt đầu</button>
+        </div>
+
+        <div id="gameSection" class="hidden">
+            <div class="players" id="playersContainer"></div>
+            <button class="reset-btn" onclick="resetGame()">🔄 Bắt đầu lại</button>
+        </div>
+    </div>
+
+    <script>
+        let players = [];
+
+        function startGame() {
+            const names = [
+                document.getElementById('player1').value.trim(),
+                document.getElementById('player2').value.trim(),
+                document.getElementById('player3').value.trim(),
+                document.getElementById('player4').value.trim()
+            ];
+
+            if (names.some(name => !name)) {
+                alert('Vui lòng nhập đủ 4 tên người chơi');
+                return;
+            }
+
+            players = names.map(name => ({ name, score: 0 }));
+            
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('gameSection').classList.remove('hidden');
+            renderPlayers();
+        }
+
+        function updateScore(index, points) {
+            players[index].score += points;
+            renderPlayers();
+        }
+
+        function renderPlayers() {
+            const html = players.map((player, i) => `
+                <div class="player-card">
+                    <div class="player-name">${player.name}</div>
+                    <div class="score">${player.score}</div>
+                    <div class="buttons">
+                        <button class="btn-plus" onclick="updateScore(${i}, 3)">+3</button>
+                        <button class="btn-plus" onclick="updateScore(${i}, 2)">+2</button>
+                        <button class="btn-plus" onclick="updateScore(${i}, 1)">+1</button>
+                        <button class="btn-minus" onclick="updateScore(${i}, -1)">-1</button>
+                        <button class="btn-minus" onclick="updateScore(${i}, -2)">-2</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('playersContainer').innerHTML = html;
+        }
+
+        function resetGame() {
+            document.getElementById('setupSection').classList.remove('hidden');
+            document.getElementById('gameSection').classList.add('hidden');
+            document.getElementById('player1').value = '';
+            document.getElementById('player2').value = '';
+            document.getElementById('player3').value = '';
+            document.getElementById('player4').value = '';
+            players = [];
+        }
+    </script>
+</body>
+</html>
